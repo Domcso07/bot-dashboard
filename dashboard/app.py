@@ -243,4 +243,4 @@ def run_flask():
     app.run(host="0.0.0.0", port=8080, debug=False)  # debug=False, így nem lesz signal hiba
 
 threading.Thread(target=run_flask).start()
-bot.run("MTQyNDM5ODM3ODYzMjIxNjY5Nw.G2gwNs.mOQUQbEY8wzSgYAvwbZZSFrCVsMcUYIthq0xis")
+bot.run(secrets.TOKEN)
