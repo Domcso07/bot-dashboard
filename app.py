@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
+from flask_cors import CORS
 import os
 
 app = Flask(__name__)
+CORS(app)  # <<< EZ OLDJA MEG A HIBÁT
 
 client = MongoClient(os.getenv("MONGO_URL"))
 db = client["botdb"]
@@ -16,20 +18,18 @@ def home():
     return "Backend működik"
 
 
-# --- BOT → BACKEND: szerverlista frissítés ---
 @app.route("/update_servers", methods=["POST"])
 def update_servers():
-    servers = request.json["servers"]  # [{id, name}]
+    servers = request.json["servers"]
     servers_col.delete_many({})
     servers_col.insert_many(servers)
     return jsonify({"status": "ok"})
 
 
-# --- BOT → BACKEND: ranglista frissítés ---
 @app.route("/update_roles", methods=["POST"])
 def update_roles():
     guild_id = request.json["guild_id"]
-    roles = request.json["roles"]  # [{id, name}]
+    roles = request.json["roles"]
     roles_col.update_one(
         {"guild_id": guild_id},
         {"$set": {"roles": roles}},
@@ -38,14 +38,12 @@ def update_roles():
     return jsonify({"status": "ok"})
 
 
-# --- FRONTEND → BACKEND: szerverlista lekérés ---
 @app.route("/servers", methods=["GET"])
 def get_servers():
     servers = list(servers_col.find({}, {"_id": 0}))
     return jsonify(servers)
 
 
-# --- FRONTEND → BACKEND: ranglista lekérés ---
 @app.route("/roles/<guild_id>", methods=["GET"])
 def get_roles(guild_id):
     doc = roles_col.find_one({"guild_id": guild_id}, {"_id": 0})
@@ -54,18 +52,16 @@ def get_roles(guild_id):
     return jsonify(doc["roles"])
 
 
-# --- FRONTEND → BACKEND: beállítások lekérése ---
 @app.route("/settings/<guild_id>", methods=["GET"])
 def get_settings(guild_id):
     doc = settings_col.find_one({"guild_id": guild_id}, {"_id": 0})
     if not doc:
         return jsonify({
-            "warn_allowed_roles": []  # role ID-k listája (stringként)
+            "warn_allowed_roles": []
         })
     return jsonify(doc)
 
 
-# --- FRONTEND → BACKEND: beállítások mentése ---
 @app.route("/settings", methods=["POST"])
 def save_settings():
     data = request.json
