@@ -1,6 +1,3 @@
-Flask
-python-dotenv
-requests
-SQLAlchemy
+flask
+pymongo
 gunicorn
-disnake
