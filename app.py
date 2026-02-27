@@ -43,6 +43,7 @@ def update_channels():
 
     return jsonify({"status": "ok"})
 
+
 # BOT → BACKEND: ranglista
 @app.route("/update_roles", methods=["POST"])
 def update_roles():
@@ -70,14 +71,11 @@ def get_roles(guild_id):
     return jsonify(doc["roles"] if doc else [])
 
 
-# DASHBOARD → BACKEND: csatornalista (BOT-tól kérjük)
 @app.route("/channels/<guild_id>", methods=["GET"])
 def get_channels(guild_id):
-    try:
-        r = requests.get(f"{BOT_URL}/channels/{guild_id}")
-        return jsonify(r.json())
-    except:
-        return jsonify([])
+    doc = db["channels"].find_one({"guild_id": guild_id}, {"_id": 0})
+    return jsonify(doc["channels"] if doc else [])
+
 
 
 # DASHBOARD → BACKEND: beállítások lekérése
