@@ -30,6 +30,18 @@ def update_servers():
     servers_col.insert_many(servers)
     return jsonify({"status": "ok"})
 
+@app.route("/update_channels", methods=["POST"])
+def update_channels():
+    guild_id = request.json["guild_id"]
+    channels = request.json["channels"]
+
+    db["channels"].update_one(
+        {"guild_id": guild_id},
+        {"$set": {"channels": channels}},
+        upsert=True
+    )
+
+    return jsonify({"status": "ok"})
 
 # BOT → BACKEND: ranglista
 @app.route("/update_roles", methods=["POST"])
